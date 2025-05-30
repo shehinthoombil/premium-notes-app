@@ -3,8 +3,8 @@ import Navbar from '../../components/Navbar/Navbar'
 import NoteCard from '../../components/Cards/NoteCard'
 import { MdAdd } from 'react-icons/md'
 import AddEditNotes from './AddEditNotes'
-import Modal from "react-modal"
 import { useNavigate } from 'react-router-dom'
+import Modal from "react-modal"
 import axiosInstance from '../../utils/axiosInstance'
 
 const Home = () => {
@@ -15,8 +15,11 @@ const Home = () => {
     data: null,
   })
 
+  const [allNotes, setAllNotes] = useState([])
   const [userInfo, setUserInfo] = useState(null)
   const navigate = useNavigate();
+
+  const handleEdit = 
 
   //Get User Info 
   const getUserInfo = async () => {
@@ -33,7 +36,20 @@ const Home = () => {
     }
   }
 
+  //Get all notes
+  const getAllNotes = async () => {
+    try {
+      const response = await axiosInstsnce.get("/get-all-notes");
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes);
+      }
+    } catch (error) {
+      console.log("An unexpected error occured. Please try again");
+    }
+  }
+
   useEffect(() => {
+    getAllNotes()
     getUserInfo();
     return () => { };
   }, [])
@@ -43,14 +59,18 @@ const Home = () => {
       <Navbar userInfo={userInfo} />
       <div className='container mx-auto'>
         <div className='grid grid-cols-3 gap-4 mt-8'>
-          <NoteCard
-            title="Meeting on 30th May"
-            date="30th May 2025"
-            content="hey,Meeting on 30th May"
-            tags="#Meeting"
-            onEdit={() => { }}
-            onDelete={() => { }}
-          />
+          {allNotes.map((item, index) => {
+            <NoteCard
+              key={item._id}
+              title={item.title}
+              date={item.createdOn}
+              content={item.content}
+              tags={item.tags}
+              onEdit={() => { }}
+              onDelete={() => { }}
+            />
+          })}
+
         </div>
       </div>
 
@@ -78,7 +98,9 @@ const Home = () => {
           noteData={openAddEditModal.data}
           onClose={() => {
             setOpenAddEditModal({ isShown: false, type: "add", data: null })
-          }} />
+          }}
+          getAllNotes = {getAllNotes}
+           />
       </Modal>
 
     </>
