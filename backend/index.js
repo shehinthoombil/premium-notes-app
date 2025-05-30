@@ -172,7 +172,7 @@ app.put("/edit-note/:noteId", authenticateToken, async (req, res) => {
         const note = await Note.findOne({ _id: noteId, userId: user._id })
 
         if (!note) {
-            return res.send(400).json({ error: true, message: "Note not found" })
+            return res.status(400).json({ error: true, message: "Note not found" })
         }
 
         if (title) note.title = title;
