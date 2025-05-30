@@ -9,9 +9,11 @@ const axiosInstance = axios.create({
     },
 });
 
+// Automatically add token from localStorage
 axiosInstance.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem("token");
+
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
