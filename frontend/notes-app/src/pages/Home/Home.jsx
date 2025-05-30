@@ -19,7 +19,9 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null)
   const navigate = useNavigate();
 
-  const handleEdit = 
+  const handleEdit = (noteDetails) => {
+    setOpenAddEditModal({ isShown: true, data: noteDetails, type: "edit" })
+  }
 
   //Get User Info 
   const getUserInfo = async () => {
@@ -48,6 +50,22 @@ const Home = () => {
     }
   }
 
+  //Delete Note
+  const deleteNote = async (data) => {
+    const noteId = data._id
+    try {
+      const response = await axiosInstance.delete("/delete-note/" + noteId)
+
+      if (response.data && !response.data.error) {
+        getAllNotes()
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        console.log("An unexpected error occured. Please try again");
+      }
+    }
+  }
+
   useEffect(() => {
     getAllNotes()
     getUserInfo();
@@ -57,6 +75,7 @@ const Home = () => {
   return (
     <>
       <Navbar userInfo={userInfo} />
+      
       <div className='container mx-auto'>
         <div className='grid grid-cols-3 gap-4 mt-8'>
           {allNotes.map((item, index) => {
@@ -66,8 +85,8 @@ const Home = () => {
               date={item.createdOn}
               content={item.content}
               tags={item.tags}
-              onEdit={() => { }}
-              onDelete={() => { }}
+              onEdit={() => handleEdit(item)}
+              onDelete={() => { deleteNote(item) }}
             />
           })}
 
@@ -99,8 +118,8 @@ const Home = () => {
           onClose={() => {
             setOpenAddEditModal({ isShown: false, type: "add", data: null })
           }}
-          getAllNotes = {getAllNotes}
-           />
+          getAllNotes={getAllNotes}
+        />
       </Modal>
 
     </>
