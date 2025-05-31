@@ -68,6 +68,7 @@ app.post("/create-account", async (req, res) => {
 
 //Login 
 app.post("/login", async (req, res) => {
+
     const { email, password } = req.body
 
     if (!email) {
@@ -83,6 +84,7 @@ app.post("/login", async (req, res) => {
     }
     if (userInfo.email == email && userInfo.password == password) {
         const user = { user: userInfo };
+        
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: "36000m",
         })
@@ -104,7 +106,6 @@ app.post("/login", async (req, res) => {
 //Get User API
 app.get("/get-user", authenticateToken, async (req, res) => {
     const { user } = req.user;
-
     const isUser = await User.findOne({ _id: user._id })
 
     if (!isUser) {

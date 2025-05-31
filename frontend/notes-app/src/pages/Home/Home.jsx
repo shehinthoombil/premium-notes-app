@@ -17,7 +17,7 @@ const Home = () => {
 
   const [allNotes, setAllNotes] = useState([])
   const [userInfo, setUserInfo] = useState(null)
-  const [isSearch, setIssearch] = useState(false)
+  const [isSearch, setIsSearch] = useState(false)
   const navigate = useNavigate();
 
   const handleEdit = (noteDetails) => {
@@ -42,7 +42,7 @@ const Home = () => {
   //Get all notes
   const getAllNotes = async () => {
     try {
-      const response = await axiosInstsnce.get("/get-all-notes");
+      const response = await axiosInstance.get("/get-all-notes");
       if (response.data && response.data.notes) {
         setAllNotes(response.data.notes);
       }
@@ -74,7 +74,7 @@ const Home = () => {
         params: { query },
       })
       if (response.data && response.data.notes) {
-        setIssearch(true)
+        setIsSearch(true)
         setAllNotes(response.data.notes)
       }
     } catch (error) {
@@ -83,7 +83,7 @@ const Home = () => {
   }
 
   const handleClearSearch = () => {
-    setIssearch(false)
+    setIsSearch(false)
     getAllNotes();
   }
 
