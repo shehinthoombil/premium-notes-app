@@ -100,10 +100,10 @@ const Home = () => {
         onSearchNote={onSearchNote}
         handleClearSearch={handleClearSearch}
       />
-
       <div className='container mx-auto'>
         <div className='grid grid-cols-3 gap-4 mt-8'>
-          {allNotes.map((item, index) => {
+
+          {allNotes.map((item, index) => (
             <NoteCard
               key={item._id}
               title={item.title}
@@ -113,7 +113,7 @@ const Home = () => {
               onEdit={() => handleEdit(item)}
               onDelete={() => { deleteNote(item) }}
             />
-          })}
+          ))}
 
         </div>
       </div>

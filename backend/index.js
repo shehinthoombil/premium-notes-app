@@ -84,7 +84,7 @@ app.post("/login", async (req, res) => {
     }
     if (userInfo.email == email && userInfo.password == password) {
         const user = { user: userInfo };
-        
+
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: "36000m",
         })
@@ -198,7 +198,6 @@ app.put("/edit-note/:noteId", authenticateToken, async (req, res) => {
 //Get All Notes
 app.get("/get-all-notes/", authenticateToken, async (req, res) => {
     const { user } = req.user;
-
     try {
         const notes = await Note.find({ userId: user._id })
 
