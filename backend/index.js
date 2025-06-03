@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const config = require("./config.json")
 const mongoose = require("mongoose")
+const bcrypt = require("bcrypt");
 
 mongoose.connect(config.connectionString)
     .then(() => console.log("MongoDB connected"))
@@ -48,22 +49,30 @@ app.post("/create-account", async (req, res) => {
         return res.json({ error: true, message: "User already exist", })
     }
 
-    const user = new User({
-        fullName,
-        email,
-        password,
-    })
-    await user.save();
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "36000m",
-    })
-    return res.json({
-        error: false,
-        user,
-        accessToken,
-        message: "Registration Successful"
-    })
+        const user = new User({
+            fullName,
+            email,
+            password: hashedPassword,
+        })
+        await user.save();
+
+        const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: "36000m",
+        })
+        return res.json({
+            error: false,
+            user,
+            accessToken,
+            message: "Registration Successful"
+        })
+
+    } catch (error) {
+        return res.status(500).json({ error: true, message: "Server error" });
+
+    }
 })
 
 //Login 
@@ -78,29 +87,27 @@ app.post("/login", async (req, res) => {
         return res.status(400).json({ message: "Password is required" })
     }
 
-    const userInfo = await User.findOne({ email: email });
+    const userInfo = await User.findOne({ email });
     if (!userInfo) {
         return res.status(400).json({ message: "User not found" })
     }
-    if (userInfo.email == email && userInfo.password == password) {
-        const user = { user: userInfo };
 
-        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: "36000m",
-        })
-
-        return res.json({
-            error: false,
-            message: "Login Successful",
-            email,
-            accessToken,
-        })
-    } else {
-        return res.status(400).json({
-            error: true,
-            message: "Invalid Credentials",
-        })
+    const isMatch = await bcrypt.compare(password, userInfo.password);
+    if (!isMatch) {
+        return res.status(400).json({ error: true, message: "Invalid Credentials" });
     }
+    const user = { user: userInfo };
+
+    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "36000m",
+    })
+
+    return res.json({
+        error: false,
+        message: "Login Successful",
+        email,
+        accessToken,
+    })
 })
 
 //Get User API
